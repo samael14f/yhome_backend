@@ -109,7 +109,9 @@ def properties_detail(request, pk):
 @authentication_classes([])
 @permission_classes([])
 def property_reservations(request, pk):
+    print(pk)
     property = Property.objects.get(pk=pk)
+    # property = Property.objects.get(pk=r)
     reservations = property.reservations.all()
 
     serializer = ReservationsListSerializer(reservations, many=True)
