@@ -114,7 +114,7 @@ def property_reservations(request, pk):
 
     serializer = ReservationsListSerializer(reservations, many=True)
 
-    return JsonResponse(serializer.data, safe=False)
+    return JsonResponse(serializer.data, safe=True)
 
 
 @api_view(['POST', 'FILES'])
