@@ -51,8 +51,25 @@ def all_properties(request):
   return Response(propertiesData.data)
 
 @api_view(['GET'])
-def get_property(request):
-  pass 
+@authentication_classes([])
+@permission_classes([])
+def get_property_list(request,pk):
+  user = User.objects.get(pk=pk)
+  if Property.objects.filter(landlord=user).exists():
+    properties = Property.objects.filter(landlord=user)
+    propertiesData = PropertiesListSerializer(properties,many=True)
+    return Response(propertiesData.data)
+    
+  else:
+    return Response(False)
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_property(request,pk):
+  propertyObj = Property.objects.get(pk=pk)
+  propertyData = PropertySerializer(propertyObj,many=False)
+  return Response(propertyData.data)
 
 @api_view(['POST'])
 def create_property(request):
@@ -82,7 +99,21 @@ def all_reservations(request):
 def get_reservation(request):
   pass
 
-
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
+def get_reservation_list(request,pk):
+  user = User.objects.get(pk=pk)
+  if Reservation.objects.filter(created_by=user):
+    
+    reservationList = Reservation.objects.filter(created_by=user)
+    reservationsData = ReservationSerializer(reservationList,many=True)
+    return Response(reservationsData.data)
+  else:
+    return Response(False)
+    
+    
+    
 @api_view(['POST'])
 def create_reservation(request):
   pass
