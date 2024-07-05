@@ -113,6 +113,7 @@ INSTALLED_APPS = [
     'chat',
     'property',
     'useraccount',
+    'myadmin',
 ]
 
 MIDDLEWARE = [

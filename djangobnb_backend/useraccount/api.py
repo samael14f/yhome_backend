@@ -28,3 +28,14 @@ def reservations_list(request):
     
     serializer = ReservationsListSerializer(reservations, many=True)
     return JsonResponse(serializer.data, safe=False)
+    
+    
+@api_view(['POST','FILES'])
+def edit_profile(request,pk):
+  user = User.objects.get(pk=pk)
+  
+  userData = UserDetailSerializer(instance=user,data=request.data)
+  if userData.is_valid():
+    userData.save()
+  
+  
