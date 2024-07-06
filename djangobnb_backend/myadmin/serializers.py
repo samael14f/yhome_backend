@@ -34,6 +34,7 @@ class PropertySerializer(serializers.ModelSerializer):
 
   
 class ReservationSerializer(serializers.ModelSerializer):
+  
   class Meta:
     model = Reservation
     fields = (
@@ -41,4 +42,9 @@ class ReservationSerializer(serializers.ModelSerializer):
         )
     
     
-      
+class GetReservationSerializer(serializers.ModelSerializer):
+  property = PropertySerializer(read_only=True,many=False)
+  created_by = UserSerializer(read_only=True,many=False)
+  class Meta :
+    model = Reservation
+    fields = '__all__'
