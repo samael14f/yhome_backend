@@ -52,3 +52,15 @@ class User(AbstractBaseUser, PermissionsMixin):
             return f'{settings.WEBSITE_URL}{self.avatar.url}'
         else:
             return ''
+            
+            
+    def __str__(self):
+      return self.email
+            
+class StaffMembers(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user_id = models.ForeignKey(User,related_name='user',on_delete=models.CASCADE)
+    country = models.CharField(max_length=255)
+    country_code = models.CharField(max_length=10)
+    
+    

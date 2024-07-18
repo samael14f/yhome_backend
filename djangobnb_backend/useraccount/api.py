@@ -31,6 +31,8 @@ def reservations_list(request):
     
     
 @api_view(['POST','FILES'])
+@authentication_classes([])
+@permission_classes([])
 def edit_profile(request,pk):
   user = User.objects.get(pk=pk)
   

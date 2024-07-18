@@ -4,7 +4,7 @@ from property.models import Property, Reservation
 
 from useraccount.models import User
 
-List =( 'id', 'name', 'avatar_url','email','is_superuser'
+List =( 'id', 'name', 'avatar_url','email','is_superuser','is_staff',
         )
 
 class UserSerializer(serializers.ModelSerializer):
@@ -28,17 +28,22 @@ class PropertySerializer(serializers.ModelSerializer):
             'guests',
             'landlord',
             'description',
+            'license_url',
+            'address',
+            'country',
+            
         )
 
 
 
   
 class ReservationSerializer(serializers.ModelSerializer):
-  
+  property = PropertySerializer(read_only=True,many=False)
+  created_by = UserSerializer(read_only=True,many=False)
   class Meta:
     model = Reservation
     fields = (
-            'id', 'start_date', 'end_date', 'number_of_nights', 'total_price', 'property','guests','created_at',
+            'id', 'start_date', 'end_date', 'number_of_nights', 'total_price', 'property','guests','created_by','created_at',
         )
     
     

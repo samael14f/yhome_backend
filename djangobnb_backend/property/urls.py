@@ -10,4 +10,9 @@ urlpatterns = [
     path('<uuid:pk>/book/', api.book_property, name='api_book_property'),
     path('<uuid:pk>/reservations/', api.property_reservations, name='api_property_reservations'),
     path('<uuid:pk>/toggle_favorite/', api.toggle_favorite, name='api_toggle_favorite'),
+    path('reservation/<uuid:pk>',api.get_reservation,name='reservation'),
+    path('get-reviews/<uuid:pk>',api.get_reviews,
+    name='get-reviews'),
+    path('post-review/',api.post_review,name="post-review"),
+    
 ]

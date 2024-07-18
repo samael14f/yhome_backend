@@ -20,5 +20,11 @@ urlpatterns = [
   path('get-reservation/<uuid:pk>',api.get_reservation,name='get-reservation'),
   path('create-reservation/',api.create_reservation,name='create-reservation'),
   path('delete-reservation/<uuid:pk>',api.delete_reservation,name='delete-reservation'),
+  path('get-non-staffs/',api.get_non_staffs,name='get_non_staffs'),
+  path('get-requests-list/',api.property_request_list,name='get-req'),
+  path('get-property-request/<uuid:pk>',api.get_property_request,name="get-property-request"),
+  path('accept-request/<uuid:pk>',api.accept_request,name="accept_request"),
+  path('cancel-request/<uuid:pk>',api.cancel_request,name="cancel-request"),
+  
   
   ]

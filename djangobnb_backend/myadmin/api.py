@@ -2,8 +2,8 @@ from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework_simplejwt.tokens import AccessToken
-from property.models import Property, Reservation
-from property.serializers import PropertiesListSerializer, PropertiesDetailSerializer, ReservationsListSerializer
+from property.models import Property, Reservation, Reviews, Complaints,PropertyVerification
+from property.serializers import PropertiesListSerializer, PropertiesDetailSerializer,PropertyVerificationDetailSerializer,ReservationsListSerializer,RequestSerializer
 from useraccount.models import User
 from .serializers import UserSerializer,PropertySerializer,ReservationSerializer,GetReservationSerializer
 from .forms import UserForm
@@ -17,7 +17,11 @@ from property.forms import PropertyForm
 @permission_classes([])
 def admin_dashboard(request):
  
-  users = User.objects.all()
+  is_staff = request.GET.get('is_staff','')
+  if is_staff:
+    users = User.objects.filter(is_staff=True)
+  else:
+    users = User.objects.all()
  
   userData = UserSerializer(users,many=True)
   
@@ -179,3 +183,72 @@ def delete_reservation(request,pk):
     reservation.delete()
   return Response({"success":True})
 
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_non_staffs(request):
+  non_staffs = User.objects.filter(is_staff=False)
+  
+  non_staffs_list = []
+  
+  for user in non_staffs:
+    user_obj = dict()
+    user_obj['value'] = user.id
+    user_obj['label'] = user.email
+    non_staffs_list.append(user_obj)
+  print(non_staffs_list)
+  return Response(non_staffs_list)
+    
+    
+    
+
+    
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def property_request_list(request):
+  property_request_list = PropertyVerification.objects.filter(is_canceled=False,is_verified_by_admin=False)
+  request_list = RequestSerializer(property_request_list,many=True)
+  
+  return Response(request_list.data)
+  
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_property_request(request,pk):
+  property_request = PropertyVerification.objects.get(pk=pk)
+  request_property = RequestSerializer(property_request,many=False)
+  return Response(request_property.data)
+  
+  
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def cancel_request(request,pk):
+  if request.method == "POST":
+    property_request = PropertyVerification.objects.get(pk=pk)
+    property_request.is_canceled = True
+    property_request.save()
+    
+    return Response({"success":True})
+    
+    
+  
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def accept_request(request,pk):
+  if request.method == "POST":
+    property_request = PropertyVerification.objects.get(pk=pk)
+    property = Property.objects.get(pk=property_request.property.id)
+    property.is_verified = True
+    property_request.is_verified_by_staff = True
+   
+    property_request.is_verified_by_admin = True
+    property.save()
+    property_request.save()
+   
+    return Response({"success":True})
+    
+    

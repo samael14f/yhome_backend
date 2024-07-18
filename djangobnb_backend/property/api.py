@@ -3,9 +3,11 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework_simplejwt.tokens import AccessToken
 from .forms import PropertyForm
-from .models import Property, Reservation
-from .serializers import PropertiesListSerializer, PropertiesDetailSerializer, ReservationsListSerializer
-from useraccount.models import User
+from .models import Property, Reservation, Reviews, Complaints ,PropertyVerification
+from .serializers import PropertiesListSerializer, PropertiesDetailSerializer, ReservationsListSerializer,ReservationSerializer, ReviewSerializer ,ComplaintSerializer
+from useraccount.models import User,StaffMembers
+from rest_framework.response import Response
+
 
 @api_view(['GET'])
 @authentication_classes([])
@@ -26,7 +28,7 @@ def properties_list(request):
     #
 
     favorites = []
-    properties = Property.objects.all()
+    properties = Property.objects.filter(is_verified=True)
 
     #
     # Filter
@@ -116,7 +118,7 @@ def property_reservations(request, pk):
 
     serializer = ReservationsListSerializer(reservations, many=True)
 
-    return JsonResponse(serializer.data, safe=True)
+    return Response(serializer.data)
 
 
 @api_view(['POST', 'FILES'])
@@ -127,7 +129,12 @@ def create_property(request):
         property = form.save(commit=False)
         property.landlord = request.user
         property.save()
-
+        
+        print(property.id)
+        propertyObj = Property.objects.get(pk=property.id)
+        staff = StaffMembers.objects.filter(country=property.country).first()
+        staffMember = User.objects.get(pk=staff.user_id.id)
+        PropertyVerification.objects.create(property=propertyObj,verified_staff=staffMember,owner=request.user)
         return JsonResponse({'success': True})
     else:
         print('error', form.errors, form.non_field_errors)
@@ -174,3 +181,48 @@ def toggle_favorite(request, pk):
         property.favorited.add(request.user)
 
         return JsonResponse({'is_favorite': True})
+        
+        
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def get_reservation(request,pk):
+  print(pk)
+  reservation = Reservation.objects.get(pk=pk)
+  reservationData = ReservationSerializer(reservation,many=False)
+  return Response(reservationData.data)
+  
+@api_view(['GET']) 
+@authentication_classes([])
+@permission_classes([])
+def get_reviews(request,pk):
+  propertyObj = Property.objects.get(pk=pk)
+  print(propertyObj)
+  reviews = Reviews.objects.filter(property=propertyObj)
+  reviewsData = ReviewSerializer(reviews,many=True)
+  return Response(reviewsData.data)
+  
+
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([])
+def post_review(request):
+  
+  propertyId = request.POST.get('propertyId')
+  print(propertyId)
+  property = Property.objects.get(pk=propertyId)
+  body = request.POST.get('body')
+  print(body)
+  try:
+    token = request.META['HTTP_AUTHORIZATION'].split('Bearer ')[1]
+    token = AccessToken(token)
+    user_id = token.payload['user_id']
+    user = User.objects.get(pk=user_id)
+    print(user_id)
+  except Exception as e:
+    print(e)
+  print(user)
+  
+  Reviews.objects.create(body=body, review_by=user,property=property)
+  
+  return Response({"success":True})

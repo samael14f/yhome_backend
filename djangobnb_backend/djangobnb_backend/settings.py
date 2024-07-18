@@ -119,6 +119,7 @@ INSTALLED_APPS = [
     'property',
     'useraccount',
     'myadmin',
+    'staff',
 ]
 
 MIDDLEWARE = [

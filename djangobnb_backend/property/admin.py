@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import Property, Reservation
+from .models import *
 
 
 admin.site.register(Property)
-admin.site.register(Reservation)
+admin.site.register([Reservation, Reviews, Complaints,PropertyVerification])
