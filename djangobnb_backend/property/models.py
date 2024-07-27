@@ -31,6 +31,8 @@ class Property(models.Model):
         if self.license == '':
           return f'No license provided for this property'
         return f'{settings.WEBSITE_URL}{self.license.url}'
+    def __str__(self):
+        return self.title
    
 
 class Reservation(models.Model):
@@ -43,6 +45,7 @@ class Reservation(models.Model):
     total_price = models.FloatField()
     created_by = models.ForeignKey(User, related_name='reservations', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    paid_status = models.BooleanField(default=False)
     
     
     
@@ -74,3 +77,13 @@ class Complaints(models.Model):
     complaint_by = models.ForeignKey(User,related_name='complaint_by',on_delete=models.CASCADE)
     property = models.ForeignKey(Property,related_name='property_complaint',on_delete=models.CASCADE)
     is_taken_action = models.BooleanField(default=False)
+    
+    
+class Transaction(models.Model):
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    payment_id = models.CharField(max_length=255)
+    order_id = models.CharField(max_length = 255)
+    signature = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User,related_name='order_by',on_delete=models.SET_NULL,null=True)
+    reservation_id = models.ForeignKey(Reservation,related_name='reservations_id',on_delete=models.SET_NULL,null=True)

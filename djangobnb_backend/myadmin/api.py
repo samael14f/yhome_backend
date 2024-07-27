@@ -9,7 +9,9 @@ from .serializers import UserSerializer,PropertySerializer,ReservationSerializer
 from .forms import UserForm
 from property.forms import PropertyForm
 
+from django.core.mail import send_mail
 
+from djangobnb_backend.settings import EMAIL_HOST_USER
 
 
 @api_view((['GET']))
@@ -228,8 +230,17 @@ def get_property_request(request,pk):
 def cancel_request(request,pk):
   if request.method == "POST":
     property_request = PropertyVerification.objects.get(pk=pk)
+    propertyObj = Property.objects.get(pk=property_request.property.id)
     property_request.is_canceled = True
     property_request.save()
+    subject = "Property Verification"
+    
+    email = propertyObj.landlord.email
+    name = propertyObj.landlord.name
+    message = f"hey { name if name else 'Yhome user' } your property has been verified by admin and is  not fit to be yhome please correct the details re host the property"
+    from_mail = EMAIL_HOST_USER
+    send_mail(subject,message,from_mail,[email],fail_silently=False,)
+    
     
     return Response({"success":True})
     
@@ -248,6 +259,14 @@ def accept_request(request,pk):
     property_request.is_verified_by_admin = True
     property.save()
     property_request.save()
+    
+    subject = "Property Verification"
+    name = property.landlord.name
+    email = property.landlord.email
+    message = f" hey { name  if name else 'Yhome user' } your property has been verified by admin and is fit to be yhome thankyou for using Yhome"
+    from_mail = EMAIL_HOST_USER
+    send_mail(subject,message,from_mail,[email],fail_silently=False,)
+    
    
     return Response({"success":True})
     

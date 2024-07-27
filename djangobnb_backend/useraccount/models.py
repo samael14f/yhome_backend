@@ -64,3 +64,8 @@ class StaffMembers(models.Model):
     country_code = models.CharField(max_length=10)
     
     
+class OTPtoken(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User,related_name='user_email',on_delete=models.CASCADE)
+    token = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)

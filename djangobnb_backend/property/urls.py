@@ -14,5 +14,7 @@ urlpatterns = [
     path('get-reviews/<uuid:pk>',api.get_reviews,
     name='get-reviews'),
     path('post-review/',api.post_review,name="post-review"),
+    path('create-checkout/',api.create_checkout_session,name='create_checkout_session'),
+    path('complete-payment/',api.complete_payment,name='complete-payment'),
     
 ]
